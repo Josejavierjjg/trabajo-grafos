@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Autenticación de Procesos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 350px;
+            text-align: center;
+        }
+        h2 { color: #333; margin-bottom: 1.5rem; }
+        
+        .input-group { margin-bottom: 1rem; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #666; font-size: 0.9rem; }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Para que el padding no rompa el ancho */
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #0056b3; }
+
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .info {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #888;
+            text-align: left;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h2>Iniciar Sesión</h2>
+    
+    <div class="input-group">
+        <label for="username">Usuario</label>
+        <input type="text" id="username" placeholder="admin, usuario1, usuario2">
+    </div>
+
+    <div class="input-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" placeholder="Ingresa contraseña">
+    </div>
+
+    <button onclick="validarAcceso()">Ingresar</button>
+
+    <div id="message"></div>
+
+    <div class="info">
+        <strong>Credenciales válidas:</strong><br>
+        Pass: 1234<br>
+        Users: admin, usuario1, usuario2
+    </div>
+</div>
+
+<script>
+    function validarAcceso() {
+        // 1. OBTENER DATOS DEL DOM
+        const userClean = document.getElementById('username').value.trim().toLowerCase();
+        const passClean = document.getElementById('password').value;
+        const msgDiv = document.getElementById('message');
+
+        // 2. VARIABLES BOOLEANAS (Inicialización)
+        let P = 0; // Password Correcta
+        let A = 0; // Es Admin
+        let S = 0; // Tiene Suscripción (Permiso)
+
+        // 3. LÓGICA DE ASIGNACIÓN DE VALORES
+        
+        // Evaluar Contraseña (P)
+        if (passClean === '1234') {
+            P = 1;
+        }
+
+        // Evaluar Roles (A y S) solo basado en el nombre de usuario
+        if (userClean === 'admin') {
+            A = 1; 
+            S = 1; // El admin implícitamente tiene acceso
+        } else if (userClean === 'usuario1') {
+            A = 0; 
+            S = 1; // Usuario suscrito
+        } else if (userClean === 'usuario2') {
+            A = 0; 
+            S = 0; // Usuario sin suscripción
+        } else {
+            // Usuario desconocido
+            A = 0; 
+            S = 0;
+        }
+
+        // 4. ÁLGEBRA DE BOOLE: Q = P * (A + S)
+        // JavaScript usa && para AND (multiplicación lógica) y || para OR (suma lógica)
+        const acceso = (P === 1) && ((A === 1) || (S === 1));
+
+        // 5. RENDERIZADO DEL RESULTADO
+        msgDiv.style.display = 'block';
+        
+        if (P === 0) {
+            // Caso específico: Contraseña mal
+            msgDiv.className = 'error';
+            msgDiv.innerHTML = '⛔ <strong>Error:</strong> Contraseña incorrecta.';
+        } else if (acceso) {
+            // Caso: Acceso concedido
+            msgDiv.className = 'success';
+            msgDiv.innerHTML = '✅ <strong>Bienvenido al Sistema.</strong><br>Redirigiendo al panel de procesos...';
+            // Aquí iría: window.location.href = "procesos.html";
+        } else {
+            // Caso: Contraseña bien, pero sin permisos (usuario2)
+            msgDiv.className = 'error';
+            msgDiv.innerHTML = '⛔ <strong>Acceso Denegado:</strong><br>Su usuario no tiene permisos activos.';
+        }
+
+        // Debug en consola para ver el álgebra funcionando
+        console.log(`Usuario: ${userClean} | P=${P} | A=${A} | S=${S} | Resultado=${acceso}`);
+    }
+</script>
+
+</body>
+</html>

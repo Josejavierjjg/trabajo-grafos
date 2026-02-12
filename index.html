@@ -3,155 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Autenticación de Procesos</title>
+    <title>Banco de JJ 🏦</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background-color: #e0e5ec; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
         }
-        .login-card {
-            background-color: white;
-            padding: 2rem;
+        .card { 
+            background: white; 
+            padding: 2.5rem; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 350px; 
+            text-align: center; 
+        }
+        
+        /* Estilo del Logo JJ */
+        .logo {
+            font-size: 40px;
+            font-weight: 900;
+            color: #1a237e; /* Azul oscuro elegante */
+            margin-bottom: 5px;
+            letter-spacing: -3px;
+            border: 3px solid #1a237e;
+            display: inline-block;
+            padding: 5px 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            width: 350px;
-            text-align: center;
         }
-        h2 { color: #333; margin-bottom: 1.5rem; }
-        
-        .input-group { margin-bottom: 1rem; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #666; font-size: 0.9rem; }
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Para que el padding no rompa el ancho */
-        }
-        
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover { background-color: #0056b3; }
+        .subtitle { color: #555; font-size: 14px; margin-bottom: 20px; }
 
-        #message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            display: none;
+        input { 
+            width: 90%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            background-color: #f9f9f9;
         }
+        
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: #1a237e; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold;
+            transition: 0.3s; 
+        }
+        button:hover { background-color: #283593; transform: scale(1.02); }
+        
+        .hidden { display: none; }
+        .alert { margin-top: 15px; padding: 10px; border-radius: 5px; font-size: 14px; }
         .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         
-        .info {
-            margin-top: 20px;
-            font-size: 0.75rem;
-            color: #888;
-            text-align: left;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+        .balance-box { 
+            background: linear-gradient(135deg, #1a237e, #3949ab); 
+            color: white;
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+        .balance-amount { font-size: 28px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="login-card">
-    <h2>Iniciar Sesión</h2>
-    
-    <div class="input-group">
-        <label for="username">Usuario</label>
-        <input type="text" id="username" placeholder="admin, usuario1, usuario2">
+    <div id="loginScreen" class="card">
+        <div class="logo">JJ</div>
+        <p class="subtitle">Banca en Línea Segura</p>
+        
+        <input type="text" id="user" placeholder="Usuario (admin)">
+        <input type="password" id="pass" placeholder="Contraseña (1234)">
+        <button onclick="intentarLogin()">Ingresar</button>
+        <div id="loginMsg" class="alert hidden"></div>
     </div>
 
-    <div class="input-group">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" placeholder="Ingresa contraseña">
+    <div id="bankScreen" class="card hidden">
+        <div class="logo" style="font-size: 24px;">JJ</div>
+        <h3>Zona de Transferencias</h3>
+        
+        <div class="balance-box">
+            <small>Saldo Disponible</small><br>
+            <span class="balance-amount">$<span id="saldoDisplay">5000</span></span>
+        </div>
+
+        <input type="number" id="monto" placeholder="Monto a transferir ($)">
+        <input type="password" id="claveOperacion" placeholder="Clave Especial (777)">
+        
+        <button onclick="realizarTransferencia()">Confirmar Transferencia</button>
+        
+        <div id="transMsg" class="alert hidden"></div>
+        
+        <div style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px; font-size: 11px; color: #777;">
+            <strong>Sistema de Seguridad Booleana:</strong><br>
+            <em>Transferencia = Login · Saldo · Clave</em>
+        </div>
+        
+        <button onclick="logout()" style="background-color: #c62828; margin-top: 15px; font-size: 12px; padding: 8px;">Cerrar Sesión</button>
     </div>
-
-    <button onclick="validarAcceso()">Ingresar</button>
-
-    <div id="message"></div>
-
-    <div class="info">
-        <strong>Credenciales válidas:</strong><br>
-        Pass: 1234<br>
-        Users: admin, usuario1, usuario2
-    </div>
-</div>
 
 <script>
-    function validarAcceso() {
-        // 1. OBTENER DATOS DEL DOM
-        const userClean = document.getElementById('username').value.trim().toLowerCase();
-        const passClean = document.getElementById('password').value;
-        const msgDiv = document.getElementById('message');
+    // --- LÓGICA DEL SISTEMA ---
+    
+    // Variables de Estado (Booleano simulado)
+    let L_Logueado = 0; // Variable L
+    let saldoActual = 5000;
+    const CLAVE_ESPECIAL = "777"; // Clave requerida para Variable C
 
-        // 2. VARIABLES BOOLEANAS (Inicialización)
-        let P = 0; // Password Correcta
-        let A = 0; // Es Admin
-        let S = 0; // Tiene Suscripción (Permiso)
+    function intentarLogin() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        const msg = document.getElementById('loginMsg');
 
-        // 3. LÓGICA DE ASIGNACIÓN DE VALORES
-        
-        // Evaluar Contraseña (P)
-        if (passClean === '1234') {
-            P = 1;
-        }
-
-        // Evaluar Roles (A y S) solo basado en el nombre de usuario
-        if (userClean === 'admin') {
-            A = 1; 
-            S = 1; // El admin implícitamente tiene acceso
-        } else if (userClean === 'usuario1') {
-            A = 0; 
-            S = 1; // Usuario suscrito
-        } else if (userClean === 'usuario2') {
-            A = 0; 
-            S = 0; // Usuario sin suscripción
+        // Usuario: admin, Pass: 1234
+        if (u === 'admin' && p === '1234') {
+            L_Logueado = 1; // L = 1 (Verdadero)
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('bankScreen').classList.remove('hidden');
         } else {
-            // Usuario desconocido
-            A = 0; 
-            S = 0;
+            msg.textContent = "Usuario o contraseña incorrectos.";
+            msg.className = "alert error";
+            msg.classList.remove('hidden');
         }
+    }
 
-        // 4. ÁLGEBRA DE BOOLE: Q = P * (A + S)
-        // JavaScript usa && para AND (multiplicación lógica) y || para OR (suma lógica)
-        const acceso = (P === 1) && ((A === 1) || (S === 1));
-
-        // 5. RENDERIZADO DEL RESULTADO
-        msgDiv.style.display = 'block';
+    function realizarTransferencia() {
+        const montoInput = parseFloat(document.getElementById('monto').value);
+        const claveInput = document.getElementById('claveOperacion').value;
+        const msg = document.getElementById('transMsg');
         
-        if (P === 0) {
-            // Caso específico: Contraseña mal
-            msgDiv.className = 'error';
-            msgDiv.innerHTML = '⛔ <strong>Error:</strong> Contraseña incorrecta.';
-        } else if (acceso) {
-            // Caso: Acceso concedido
-            msgDiv.className = 'success';
-            msgDiv.innerHTML = '✅ <strong>Bienvenido al Sistema.</strong><br>Redirigiendo al panel de procesos...';
-            // Aquí iría: window.location.href = "procesos.html";
-        } else {
-            // Caso: Contraseña bien, pero sin permisos (usuario2)
-            msgDiv.className = 'error';
-            msgDiv.innerHTML = '⛔ <strong>Acceso Denegado:</strong><br>Su usuario no tiene permisos activos.';
-        }
+        // 1. EVALUAR VARIABLES BOOLEANAS (0 o 1)
+        
+        // Variable S: ¿Hay dinero suficiente?
+        let S_SaldoSuficiente = (saldoActual >= montoInput && montoInput > 0) ? 1 : 0;
+        
+        // Variable C: ¿La clave es correcta?
+        let C_ClaveCorrecta = (claveInput === CLAVE_ESPECIAL) ? 1 : 0;
 
-        // Debug en consola para ver el álgebra funcionando
-        console.log(`Usuario: ${userClean} | P=${P} | A=${A} | S=${S} | Resultado=${acceso}`);
+        // 2. FÓRMULA MATEMÁTICA (ÁLGEBRA DE BOOLE)
+        // La transferencia (T) solo ocurre si TODO es 1.
+        // T = L * S * C
+        let T_Transferencia = L_Logueado * S_SaldoSuficiente * C_ClaveCorrecta;
+
+        msg.classList.remove('hidden');
+
+        if (T_Transferencia === 1) {
+            // T = 1 -> APROBADO
+            saldoActual -= montoInput;
+            document.getElementById('saldoDisplay').textContent = saldoActual;
+            msg.innerHTML = "✅ <strong>¡Transferencia Exitosa!</strong><br>Proceso autorizado por el sistema.";
+            msg.className = "alert success";
+        } else {
+            // T = 0 -> DENEGADO
+            msg.className = "alert error";
+            
+            // Explicación del error para el usuario
+            if (S_SaldoSuficiente === 0) {
+                msg.innerHTML = "❌ <strong>Error de Fondos:</strong><br>No tienes saldo suficiente (S=0).";
+            } else if (C_ClaveCorrecta === 0) {
+                msg.innerHTML = "❌ <strong>Error de Seguridad:</strong><br>Clave especial incorrecta (C=0).";
+            } else if (L_Logueado === 0) {
+                msg.innerHTML = "❌ <strong>Error de Sesión:</strong><br>No estás logueado (L=0).";
+            }
+        }
+    }
+
+    function logout() {
+        location.reload();
     }
 </script>
 

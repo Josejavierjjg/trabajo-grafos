@@ -68,6 +68,16 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .balance-amount { font-size: 28px; font-weight: bold; }
+        .hint-box {
+            font-size: 11px; 
+            color: #555; 
+            background: #e3f2fd; 
+            padding: 8px; 
+            border-radius: 6px; 
+            border: 1px solid #bbdefb;
+            text-align: left;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -76,9 +86,12 @@
         <div class="logo">JJ</div>
         <p class="subtitle">Banca en Línea Segura</p>
         
-        <p style="font-size: 12px; color: #888; background: #eee; padding: 5px; border-radius: 4px;">
-            Prueba: <b>usuario1</b> (con saldo) o <b>usuario2</b> (sin cuenta).<br>Pass: 1234
-        </p>
+        <div class="hint-box">
+            <strong>Usuarios de prueba (Pass: 1234):</strong><br>
+            👤 <b>usuario1</b>: Cliente estándar ($2,000)<br>
+            👤 <b>usuario2</b>: No es cliente (Error)<br>
+            👤 <b>usuario3</b>: Cliente VIP ($10,000)
+        </div>
 
         <input type="text" id="user" placeholder="Usuario">
         <input type="password" id="pass" placeholder="Contraseña">
@@ -89,7 +102,7 @@
     <div id="bankScreen" class="card hidden">
         <div class="logo" style="font-size: 24px;">JJ</div>
         <h3>Zona de Transferencias</h3>
-        <p id="welcomeUser" style="color: #666; font-size: 14px; margin-top: -10px;"></p>
+        <p id="welcomeUser" style="color: #666; font-size: 14px; margin-top: -10px; font-weight: bold;"></p>
         
         <div class="balance-box">
             <small>Saldo Disponible</small><br>
@@ -118,7 +131,7 @@
     const CLAVE_ESPECIAL = "777"; 
 
     function intentarLogin() {
-        const u = document.getElementById('user').value.toLowerCase(); // Convertimos a minúscula para evitar errores
+        const u = document.getElementById('user').value.toLowerCase(); // Convertimos a minúscula
         const p = document.getElementById('pass').value;
         const msg = document.getElementById('loginMsg');
 
@@ -128,38 +141,42 @@
 
         // --- LÓGICA DE USUARIOS ---
         
-        // CASO 1: USUARIO 1 (TIENE CUENTA Y DINERO)
+        // CASO 1: USUARIO 1 (ESTÁNDAR)
         if (u === 'usuario1' && p === '1234') {
             L_Logueado = 1;
-            saldoActual = 2000; // Le damos dinero inicial
+            saldoActual = 2000; 
             iniciarSesion("Usuario 1");
         } 
         
         // CASO 2: USUARIO 2 (NO TIENE CUENTA)
         else if (u === 'usuario2' && p === '1234') {
-            // Credenciales correctas, pero variable "TieneCuenta" = 0
             mostrarErrorLogin("⚠️ Usuario no registrado en nuestra banca.");
         }
+
+        // CASO 3: USUARIO 3 (VIP - NUEVO REMITENTE)
+        else if (u === 'usuario3' && p === '1234') {
+            L_Logueado = 1;
+            saldoActual = 10000; 
+            iniciarSesion("Usuario 3 (VIP)");
+        }
         
-        // CASO EXTRA: ADMIN (PARA TUS PRUEBAS)
+        // CASO EXTRA: ADMIN
         else if (u === 'admin' && p === '1234') {
             L_Logueado = 1;
-            saldoActual = 5000;
+            saldoActual = 50000;
             iniciarSesion("Administrador");
         }
 
-        // CASO 3: CONTRASEÑA O USUARIO INCORRECTO
+        // CASO 4: CREDENCIALES MALAS
         else {
             mostrarErrorLogin("❌ Credenciales incorrectas.");
         }
     }
 
     function iniciarSesion(nombreUsuario) {
-        // Actualizamos la interfaz
         document.getElementById('saldoDisplay').textContent = saldoActual;
         document.getElementById('welcomeUser').textContent = "Bienvenido, " + nombreUsuario;
         
-        // Cambiamos de pantalla
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('bankScreen').classList.remove('hidden');
     }
@@ -176,7 +193,7 @@
         const claveInput = document.getElementById('claveOperacion').value;
         const msg = document.getElementById('transMsg');
         
-        // 1. EVALUAR VARIABLES BOOLEANAS (Álgebra de Boole)
+        // 1. ÁLGEBRA DE BOOLE (VARIABLES BINARIAS)
         
         // Variable S: ¿Saldo >= Monto? (1 o 0)
         let S_SaldoSuficiente = (saldoActual >= montoInput && montoInput > 0) ? 1 : 0;
@@ -185,19 +202,18 @@
         let C_ClaveCorrecta = (claveInput === CLAVE_ESPECIAL) ? 1 : 0;
 
         // 2. FÓRMULA: T = L * S * C
-        // Si cualquiera es 0, el resultado es 0 (Denegado)
         let T_Transferencia = L_Logueado * S_SaldoSuficiente * C_ClaveCorrecta;
 
         msg.classList.remove('hidden');
 
         if (T_Transferencia === 1) {
-            // APROBADO
+            // EXITO
             saldoActual -= montoInput;
             document.getElementById('saldoDisplay').textContent = saldoActual;
             msg.innerHTML = "✅ <strong>¡Transferencia Exitosa!</strong><br>Fondos enviados correctamente.";
             msg.className = "alert success";
         } else {
-            // DENEGADO
+            // ERROR
             msg.className = "alert error";
             
             if (S_SaldoSuficiente === 0) {

@@ -3,208 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banco de JJ - Interbancario 🏦</title>
+    <title>Sistema de Gestión Integral</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #e0e5ec; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2.5rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; text-align: center; }
-        .logo { font-size: 40px; font-weight: 900; color: #1a237e; margin-bottom: 5px; border: 3px solid #1a237e; display: inline-block; padding: 5px 15px; border-radius: 8px; }
-        .subtitle { color: #555; font-size: 14px; margin-bottom: 20px; }
-        input, select { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
-        button { width: 100%; padding: 12px; background-color: #1a237e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #283593; transform: scale(1.02); }
+        /* Estilos básicos para dar apariencia de aplicación de escritorio */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        header { background: #2c3e50; color: #fff; padding: 1rem; text-align: center; }
+        nav { background: #34495e; display: flex; justify-content: center; gap: 20px; padding: 10px; }
+        nav button { background: none; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold; }
+        nav button:hover { text-decoration: underline; color: #18bc9c; }
+        
+        .container { padding: 20px; max-width: 900px; margin: auto; }
+        .module { background: white; padding: 25px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .hidden { display: none; }
-        .alert { margin-top: 15px; padding: 10px; border-radius: 5px; font-size: 14px; }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .balance-box { background: linear-gradient(135deg, #1a237e, #3949ab); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .balance-amount { font-size: 28px; font-weight: bold; }
-        .hint-box { font-size: 11px; color: #555; background: #e3f2fd; padding: 8px; border-radius: 6px; border: 1px solid #bbdefb; text-align: left; margin-bottom: 15px; }
-        .reset-btn { background-color: #607d8b; font-size: 10px; padding: 5px; width: auto; margin-top: 5px; }
+        
+        h2 { color: #2c3e50; border-bottom: 2px solid #18bc9c; padding-bottom: 5px; }
+        
+        /* Formularios y Tablas */
+        form { display: grid; gap: 12px; max-width: 400px; margin-bottom: 20px; }
+        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button.action-btn { padding: 10px; background: #18bc9c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button.action-btn:hover { background: #128f76; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #ecf0f1; color: #2c3e50; }
     </style>
 </head>
 <body>
 
-    <div id="loginScreen" class="card">
-        <div class="logo">JJ</div>
-        <p class="subtitle">Sistema Interbancario</p>
-        
-        <div class="hint-box">
-            <strong>Usuarios (Pass: 1234):</strong><br>
-            👤 <b>usuario1</b>: Saldo inicial $2,000<br>
-            👤 <b>usuario3</b>: Saldo inicial $10,000<br>
-            ⚠️ <b>usuario2</b>: No registrado
-        </div>
+    <header>
+        <h1>Panel de Administración</h1>
+    </header>
 
-        <input type="text" id="user" placeholder="Tu Usuario (ej: usuario1)">
-        <input type="password" id="pass" placeholder="Contraseña">
-        <button onclick="intentarLogin()">Ingresar</button>
-        <div id="loginMsg" class="alert hidden"></div>
-        <button onclick="reiniciarSistema()" class="reset-btn">🔄 Reiniciar Saldos</button>
+    <nav>
+        <button onclick="showModule('inventario')">📦 Inventario</button>
+        <button onclick="showModule('facturacion')">🧾 Facturación y Cobro</button>
+        <button onclick="showModule('nomina')">👥 Nómina</button>
+    </nav>
+
+    <div class="container">
+        
+        <section id="inventario" class="module">
+            <h2>Gestión de Inventario</h2>
+            <form id="form-inventario">
+                <input type="text" placeholder="Código del Producto" required>
+                <input type="text" placeholder="Nombre del Producto" required>
+                <input type="number" placeholder="Precio Unitario" step="0.01" required>
+                <input type="number" placeholder="Cantidad en Stock" required>
+                <button type="button" class="action-btn">Agregar al Inventario</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>001</td>
+                        <td>Ejemplo: Teclado Mecánico</td>
+                        <td>$45.00</td>
+                        <td>12</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="facturacion" class="module hidden">
+            <h2>Facturación y Cobranza</h2>
+            <form id="form-facturacion">
+                <input type="text" placeholder="Nombre del Cliente" required>
+                <select>
+                    <option value="">-- Seleccionar Producto --</option>
+                    <option value="001">Teclado Mecánico - $45.00</option>
+                </select>
+                <input type="number" placeholder="Cantidad" min="1" value="1" required>
+                <button type="button" class="action-btn">Añadir a la Factura</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unit.</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+            <h3 style="text-align: right;">Total a Cobrar: $0.00</h3>
+            <button type="button" class="action-btn" style="width: 100%; background-color: #e74c3c;">Procesar Cobro</button>
+        </section>
+
+        <section id="nomina" class="module hidden">
+            <h2>Cálculo de Nómina</h2>
+            <form id="form-nomina">
+                <input type="text" placeholder="Nombre del Empleado" required>
+                <input type="text" placeholder="Cargo" required>
+                <input type="number" placeholder="Salario Base" step="0.01" required>
+                <input type="number" placeholder="Bonificaciones" step="0.01" value="0">
+                <input type="number" placeholder="Deducciones" step="0.01" value="0">
+                <button type="button" class="action-btn">Calcular y Registrar Pago</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>Cargo</th>
+                        <th>Salario Base</th>
+                        <th>Neto a Pagar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </section>
+
     </div>
 
-    <div id="bankScreen" class="card hidden">
-        <div class="logo" style="font-size: 24px;">JJ</div>
-        <h3>Zona de Transferencias</h3>
-        <p id="welcomeUser" style="color: #666; font-size: 14px; margin-top: -10px; font-weight: bold;"></p>
-        
-        <div class="balance-box">
-            <small>Tu Saldo Disponible</small><br>
-            <span class="balance-amount">$<span id="saldoDisplay">0</span></span>
-        </div>
+    <script>
+        // Función simple en JavaScript para alternar entre las vistas
+        function showModule(moduleId) {
+            // Ocultar todos los módulos
+            const modules = document.querySelectorAll('.module');
+            modules.forEach(mod => mod.classList.add('hidden'));
 
-        <label style="font-size: 12px; float: left; margin-left: 15px; color: #666;">Destinatario:</label>
-        <input type="text" id="destinatario" placeholder="¿A quién envías? (ej: usuario3)">
-        
-        <input type="number" id="monto" placeholder="Monto a transferir ($)">
-        <input type="password" id="claveOperacion" placeholder="Clave Especial (777)">
-        
-        <button onclick="realizarTransferencia()">Enviar Dinero</button>
-        
-        <div id="transMsg" class="alert hidden"></div>
-        
-        <div style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px; font-size: 11px; color: #777;">
-            <strong>Lógica Booleana (4 Variables):</strong><br>
-            <em>Transf = Login · Saldo · Clave · Destino</em>
-        </div>
-        
-        <button onclick="logout()" style="background-color: #c62828; margin-top: 15px; font-size: 12px; padding: 8px;">Cerrar Sesión</button>
-    </div>
-
-<script>
-    // --- SISTEMA DE DATOS (Simulación de Base de Datos) ---
-    const SALDOS_INICIALES = {
-        'usuario1': 2000,
-        'usuario3': 10000
-    };
-
-    // Al cargar, verificamos si ya existe la "Base de Datos" en el navegador
-    if (!localStorage.getItem('banco_jj_db')) {
-        localStorage.setItem('banco_jj_db', JSON.stringify(SALDOS_INICIALES));
-    }
-
-    // --- VARIABLES DE SESIÓN ---
-    let currentUser = null;
-    let L_Logueado = 0;
-    const CLAVE_ESPECIAL = "777"; 
-
-    function getDB() {
-        return JSON.parse(localStorage.getItem('banco_jj_db'));
-    }
-
-    function saveDB(db) {
-        localStorage.setItem('banco_jj_db', JSON.stringify(db));
-    }
-
-    function intentarLogin() {
-        const u = document.getElementById('user').value.toLowerCase();
-        const p = document.getElementById('pass').value;
-        const msg = document.getElementById('loginMsg');
-        const db = getDB();
-
-        msg.classList.add('hidden');
-
-        // VALIDACIÓN DE CREDENCIALES
-        if (p === '1234') {
-            if (db[u] !== undefined) {
-                // El usuario EXISTE en la base de datos
-                currentUser = u;
-                L_Logueado = 1;
-                iniciarSesion(u, db[u]);
-            } else if (u === 'usuario2') {
-                mostrarErrorLogin("⚠️ El usuario2 no tiene cuenta activa.");
-            } else {
-                mostrarErrorLogin("❌ Usuario no encontrado.");
-            }
-        } else {
-            mostrarErrorLogin("❌ Contraseña incorrecta.");
+            // Mostrar el módulo seleccionado
+            document.getElementById(moduleId).classList.remove('hidden');
         }
-    }
-
-    function iniciarSesion(user, saldo) {
-        document.getElementById('saldoDisplay').textContent = saldo;
-        document.getElementById('welcomeUser').textContent = "Usuario: " + user;
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('bankScreen').classList.remove('hidden');
-        
-        // Limpiar campos anteriores
-        document.getElementById('destinatario').value = "";
-        document.getElementById('monto').value = "";
-        document.getElementById('claveOperacion').value = "";
-        document.getElementById('transMsg').classList.add('hidden');
-    }
-
-    function mostrarErrorLogin(texto) {
-        const msg = document.getElementById('loginMsg');
-        msg.textContent = texto;
-        msg.className = "alert error";
-        msg.classList.remove('hidden');
-    }
-
-    function realizarTransferencia() {
-        const db = getDB(); // Obtenemos datos frescos
-        const destinoInput = document.getElementById('destinatario').value.toLowerCase();
-        const montoInput = parseFloat(document.getElementById('monto').value);
-        const claveInput = document.getElementById('claveOperacion').value;
-        const msg = document.getElementById('transMsg');
-        
-        // --- 1. EVALUAR VARIABLES BOOLEANAS ---
-        
-        // S: ¿Tengo saldo suficiente?
-        let S_SaldoSuficiente = (db[currentUser] >= montoInput && montoInput > 0) ? 1 : 0;
-        
-        // C: ¿Clave correcta?
-        let C_ClaveCorrecta = (claveInput === CLAVE_ESPECIAL) ? 1 : 0;
-
-        // D: ¿El destinatario existe y NO soy yo mismo?
-        let D_DestinoValido = (db[destinoInput] !== undefined && destinoInput !== currentUser) ? 1 : 0;
-
-        // --- 2. FÓRMULA MATEMÁTICA ---
-        // T = L * S * C * D
-        let T_Transferencia = L_Logueado * S_SaldoSuficiente * C_ClaveCorrecta * D_DestinoValido;
-
-        msg.classList.remove('hidden');
-
-        if (T_Transferencia === 1) {
-            // --- ÉXITO: OPERACIÓN TRANSACCIONAL ---
-            
-            // 1. Restar al remitente
-            db[currentUser] -= montoInput;
-            // 2. Sumar al destinatario
-            db[destinoInput] += montoInput;
-            
-            // 3. Guardar en "Base de Datos"
-            saveDB(db);
-
-            // 4. Actualizar pantalla
-            document.getElementById('saldoDisplay').textContent = db[currentUser];
-            
-            msg.innerHTML = `✅ <strong>¡Enviado!</strong><br>Has transferido $${montoInput} a ${destinoInput}.`;
-            msg.className = "alert success";
-        } else {
-            // --- ERROR ---
-            msg.className = "alert error";
-            
-            if (S_SaldoSuficiente === 0) {
-                msg.innerHTML = "❌ <strong>Error de Fondos:</strong> Saldo insuficiente.";
-            } else if (C_ClaveCorrecta === 0) {
-                msg.innerHTML = "❌ <strong>Error de Seguridad:</strong> Clave incorrecta.";
-            } else if (D_DestinoValido === 0) {
-                // Detalle específico para el error de destino
-                if (destinoInput === currentUser) msg.innerHTML = "❌ No puedes transferirte a ti mismo.";
-                else msg.innerHTML = "❌ <strong>Destinatario Inválido:</strong> El usuario no existe.";
-            }
-        }
-    }
-
-    function logout() {
-        location.reload();
-    }
-
-    function reiniciarSistema() {
-        localStorage.removeItem('banco_jj_db');
-        location.reload();
-    }
-</script>
-
+    </script>
 </body>
 </html>

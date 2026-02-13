@@ -129,15 +129,111 @@
     </div>
 
     <script>
-        // Función simple en JavaScript para alternar entre las vistas
-        function showModule(moduleId) {
-            // Ocultar todos los módulos
-            const modules = document.querySelectorAll('.module');
-            modules.forEach(mod => mod.classList.add('hidden'));
+        // 1. Nuestras "Bases de Datos" temporales en memoria
+let inventario = [];
+let facturaActual = [];
 
-            // Mostrar el módulo seleccionado
-            document.getElementById(moduleId).classList.remove('hidden');
+// Función para navegar entre módulos (la que ya teníamos)
+function showModule(moduleId) {
+    document.querySelectorAll('.module').forEach(mod => mod.classList.add('hidden'));
+    document.getElementById(moduleId).classList.remove('hidden');
+}
+
+// 2. LÓGICA DE INVENTARIO
+document.querySelector('#form-inventario .action-btn').addEventListener('click', function() {
+    const inputs = document.querySelectorAll('#form-inventario input');
+    const codigo = inputs[0].value;
+    const nombre = inputs[1].value;
+    const precio = parseFloat(inputs[2].value);
+    const stock = parseInt(inputs[3].value);
+
+    if(codigo && nombre && precio && stock) {
+        // Guardamos el producto en nuestro arreglo
+        inventario.push({ codigo, nombre, precio, stock });
+        actualizarTablaInventario();
+        actualizarSelectFacturacion();
+        document.getElementById('form-inventario').reset(); // Limpiar formulario
+    } else {
+        alert('Por favor, completa todos los campos del producto.');
+    }
+});
+
+function actualizarTablaInventario() {
+    const tbody = document.querySelector('#inventario tbody');
+    tbody.innerHTML = ''; // Limpiamos la tabla
+    
+    inventario.forEach(producto => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${producto.codigo}</td>
+                <td>${producto.nombre}</td>
+                <td>$${producto.precio.toFixed(2)}</td>
+                <td>${producto.stock}</td>
+            </tr>
+        `;
+    });
+}
+
+// 3. LÓGICA DE FACTURACIÓN
+function actualizarSelectFacturacion() {
+    const select = document.querySelector('#form-facturacion select');
+    select.innerHTML = '<option value="">-- Seleccionar Producto --</option>'; // Reset
+    
+    inventario.forEach(producto => {
+        select.innerHTML += `<option value="${producto.codigo}">${producto.nombre} - $${producto.precio.toFixed(2)} (Stock: ${producto.stock})</option>`;
+    });
+}
+
+document.querySelector('#form-facturacion .action-btn').addEventListener('click', function() {
+    const select = document.querySelector('#form-facturacion select');
+    const cantidadInput = document.querySelectorAll('#form-facturacion input')[1];
+    const cantidad = parseInt(cantidadInput.value);
+    
+    const codigoSeleccionado = select.value;
+    const producto = inventario.find(p => p.codigo === codigoSeleccionado);
+
+    if(producto && cantidad > 0) {
+        if(cantidad > producto.stock) {
+            alert('No hay suficiente stock para esta venta.');
+            return;
         }
+
+        // Descontar del stock lógico y añadir a la factura
+        producto.stock -= cantidad; 
+        const subtotal = producto.precio * cantidad;
+        
+        facturaActual.push({ nombre: producto.nombre, cantidad, precio: producto.precio, subtotal });
+        
+        actualizarTablaInventario(); // Reflejamos el nuevo stock
+        actualizarSelectFacturacion();
+        actualizarTablaFacturacion();
+    } else {
+        alert('Selecciona un producto válido y una cantidad mayor a 0.');
+    }
+});
+
+function actualizarTablaFacturacion() {
+    const tbody = document.querySelector('#facturacion tbody');
+    tbody.innerHTML = '';
+    let totalCobrar = 0;
+
+    facturaActual.forEach(item => {
+        totalCobrar += item.subtotal;
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.nombre}</td>
+                <td>${item.cantidad}</td>
+                <td>$${item.precio.toFixed(2)}</td>
+                <td>$${item.subtotal.toFixed(2)}</td>
+            </tr>
+        `;
+    });
+
+    // Actualizamos el H3 con el total
+    document.querySelector('#facturacion h3').innerText = `Total a Cobrar: $${totalCobrar.toFixed(2)}`;
+}
+        
     </script>
 </body>
 </html>
+

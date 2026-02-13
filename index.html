@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestión Integral</title>
     <style>
-        /* Estilos básicos para dar apariencia de aplicación de escritorio */
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
         header { background: #2c3e50; color: #fff; padding: 1rem; text-align: center; }
         nav { background: #34495e; display: flex; justify-content: center; gap: 20px; padding: 10px; }
@@ -18,7 +17,6 @@
         
         h2 { color: #2c3e50; border-bottom: 2px solid #18bc9c; padding-bottom: 5px; }
         
-        /* Formularios y Tablas */
         form { display: grid; gap: 12px; max-width: 400px; margin-bottom: 20px; }
         input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         button.action-btn { padding: 10px; background: #18bc9c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
@@ -50,7 +48,7 @@
                 <input type="text" placeholder="Nombre del Producto" required>
                 <input type="number" placeholder="Precio Unitario" step="0.01" required>
                 <input type="number" placeholder="Cantidad en Stock" required>
-                <button type="button" class="action-btn">Agregar al Inventario</button>
+                <button type="button" class="action-btn" id="btn-add-inventario">Agregar al Inventario</button>
             </form>
 
             <table>
@@ -63,26 +61,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>001</td>
-                        <td>Ejemplo: Teclado Mecánico</td>
-                        <td>$45.00</td>
-                        <td>12</td>
-                    </tr>
-                </tbody>
+                    </tbody>
             </table>
         </section>
 
         <section id="facturacion" class="module hidden">
             <h2>Facturación y Cobranza</h2>
             <form id="form-facturacion">
-                <input type="text" placeholder="Nombre del Cliente" required>
-                <select>
+                <input type="text" placeholder="Nombre del Cliente" id="nombre-cliente" required>
+                <select id="select-productos">
                     <option value="">-- Seleccionar Producto --</option>
-                    <option value="001">Teclado Mecánico - $45.00</option>
                 </select>
                 <input type="number" placeholder="Cantidad" min="1" value="1" required>
-                <button type="button" class="action-btn">Añadir a la Factura</button>
+                <button type="button" class="action-btn" id="btn-add-factura">Añadir a la Factura</button>
             </form>
 
             <table>
@@ -97,8 +88,8 @@
                 <tbody>
                     </tbody>
             </table>
-            <h3 style="text-align: right;">Total a Cobrar: $0.00</h3>
-            <button type="button" class="action-btn" style="width: 100%; background-color: #e74c3c;">Procesar Cobro</button>
+            <h3 style="text-align: right;" id="total-cobrar">Total a Cobrar: $0.00</h3>
+            <button type="button" class="action-btn" id="btn-procesar-cobro" style="width: 100%; background-color: #e74c3c;">Procesar Cobro</button>
         </section>
 
         <section id="nomina" class="module hidden">
@@ -109,7 +100,7 @@
                 <input type="number" placeholder="Salario Base" step="0.01" required>
                 <input type="number" placeholder="Bonificaciones" step="0.01" value="0">
                 <input type="number" placeholder="Deducciones" step="0.01" value="0">
-                <button type="button" class="action-btn">Calcular y Registrar Pago</button>
+                <button type="button" class="action-btn" id="btn-add-nomina">Calcular y Registrar Pago</button>
             </form>
 
             <table>
@@ -129,111 +120,168 @@
     </div>
 
     <script>
-        // 1. Nuestras "Bases de Datos" temporales en memoria
-let inventario = [];
-let facturaActual = [];
+        // --- BASES DE DATOS TEMPORALES ---
+        let inventario = [];
+        let facturaActual = [];
+        let nominas = [];
 
-// Función para navegar entre módulos (la que ya teníamos)
-function showModule(moduleId) {
-    document.querySelectorAll('.module').forEach(mod => mod.classList.add('hidden'));
-    document.getElementById(moduleId).classList.remove('hidden');
-}
-
-// 2. LÓGICA DE INVENTARIO
-document.querySelector('#form-inventario .action-btn').addEventListener('click', function() {
-    const inputs = document.querySelectorAll('#form-inventario input');
-    const codigo = inputs[0].value;
-    const nombre = inputs[1].value;
-    const precio = parseFloat(inputs[2].value);
-    const stock = parseInt(inputs[3].value);
-
-    if(codigo && nombre && precio && stock) {
-        // Guardamos el producto en nuestro arreglo
-        inventario.push({ codigo, nombre, precio, stock });
-        actualizarTablaInventario();
-        actualizarSelectFacturacion();
-        document.getElementById('form-inventario').reset(); // Limpiar formulario
-    } else {
-        alert('Por favor, completa todos los campos del producto.');
-    }
-});
-
-function actualizarTablaInventario() {
-    const tbody = document.querySelector('#inventario tbody');
-    tbody.innerHTML = ''; // Limpiamos la tabla
-    
-    inventario.forEach(producto => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${producto.codigo}</td>
-                <td>${producto.nombre}</td>
-                <td>$${producto.precio.toFixed(2)}</td>
-                <td>${producto.stock}</td>
-            </tr>
-        `;
-    });
-}
-
-// 3. LÓGICA DE FACTURACIÓN
-function actualizarSelectFacturacion() {
-    const select = document.querySelector('#form-facturacion select');
-    select.innerHTML = '<option value="">-- Seleccionar Producto --</option>'; // Reset
-    
-    inventario.forEach(producto => {
-        select.innerHTML += `<option value="${producto.codigo}">${producto.nombre} - $${producto.precio.toFixed(2)} (Stock: ${producto.stock})</option>`;
-    });
-}
-
-document.querySelector('#form-facturacion .action-btn').addEventListener('click', function() {
-    const select = document.querySelector('#form-facturacion select');
-    const cantidadInput = document.querySelectorAll('#form-facturacion input')[1];
-    const cantidad = parseInt(cantidadInput.value);
-    
-    const codigoSeleccionado = select.value;
-    const producto = inventario.find(p => p.codigo === codigoSeleccionado);
-
-    if(producto && cantidad > 0) {
-        if(cantidad > producto.stock) {
-            alert('No hay suficiente stock para esta venta.');
-            return;
+        // --- NAVEGACIÓN ---
+        function showModule(moduleId) {
+            document.querySelectorAll('.module').forEach(mod => mod.classList.add('hidden'));
+            document.getElementById(moduleId).classList.remove('hidden');
         }
 
-        // Descontar del stock lógico y añadir a la factura
-        producto.stock -= cantidad; 
-        const subtotal = producto.precio * cantidad;
-        
-        facturaActual.push({ nombre: producto.nombre, cantidad, precio: producto.precio, subtotal });
-        
-        actualizarTablaInventario(); // Reflejamos el nuevo stock
-        actualizarSelectFacturacion();
-        actualizarTablaFacturacion();
-    } else {
-        alert('Selecciona un producto válido y una cantidad mayor a 0.');
-    }
-});
+        // --- 1. LÓGICA DE INVENTARIO ---
+        document.getElementById('btn-add-inventario').addEventListener('click', function() {
+            const inputs = document.querySelectorAll('#form-inventario input');
+            const codigo = inputs[0].value;
+            const nombre = inputs[1].value;
+            const precio = parseFloat(inputs[2].value);
+            const stock = parseInt(inputs[3].value);
 
-function actualizarTablaFacturacion() {
-    const tbody = document.querySelector('#facturacion tbody');
-    tbody.innerHTML = '';
-    let totalCobrar = 0;
+            if(codigo && nombre && !isNaN(precio) && !isNaN(stock)) {
+                inventario.push({ codigo, nombre, precio, stock });
+                actualizarTablaInventario();
+                actualizarSelectFacturacion();
+                document.getElementById('form-inventario').reset(); 
+            } else {
+                alert('Por favor, completa todos los campos correctamente.');
+            }
+        });
 
-    facturaActual.forEach(item => {
-        totalCobrar += item.subtotal;
-        tbody.innerHTML += `
-            <tr>
-                <td>${item.nombre}</td>
-                <td>${item.cantidad}</td>
-                <td>$${item.precio.toFixed(2)}</td>
-                <td>$${item.subtotal.toFixed(2)}</td>
-            </tr>
-        `;
-    });
+        function actualizarTablaInventario() {
+            const tbody = document.querySelector('#inventario tbody');
+            tbody.innerHTML = ''; 
+            inventario.forEach(producto => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${producto.codigo}</td>
+                        <td>${producto.nombre}</td>
+                        <td>$${producto.precio.toFixed(2)}</td>
+                        <td>${producto.stock}</td>
+                    </tr>
+                `;
+            });
+        }
 
-    // Actualizamos el H3 con el total
-    document.querySelector('#facturacion h3').innerText = `Total a Cobrar: $${totalCobrar.toFixed(2)}`;
-}
-        
+        // --- 2. LÓGICA DE FACTURACIÓN ---
+        function actualizarSelectFacturacion() {
+            const select = document.getElementById('select-productos');
+            select.innerHTML = '<option value="">-- Seleccionar Producto --</option>'; 
+            inventario.forEach(producto => {
+                // Solo mostrar productos con stock mayor a 0
+                if(producto.stock > 0) {
+                    select.innerHTML += `<option value="${producto.codigo}">${producto.nombre} - $${producto.precio.toFixed(2)} (Stock: ${producto.stock})</option>`;
+                }
+            });
+        }
+
+        // Añadir producto a la factura
+        document.getElementById('btn-add-factura').addEventListener('click', function() {
+            const select = document.getElementById('select-productos');
+            const cantidadInput = document.querySelectorAll('#form-facturacion input')[1];
+            const cantidad = parseInt(cantidadInput.value);
+            const codigoSeleccionado = select.value;
+            const producto = inventario.find(p => p.codigo === codigoSeleccionado);
+
+            if(producto && cantidad > 0) {
+                if(cantidad > producto.stock) {
+                    alert('No hay suficiente stock para esta venta.');
+                    return;
+                }
+
+                // Restar stock y calcular subtotal
+                producto.stock -= cantidad; 
+                const subtotal = producto.precio * cantidad;
+                facturaActual.push({ nombre: producto.nombre, cantidad, precio: producto.precio, subtotal });
+                
+                actualizarTablaInventario(); 
+                actualizarSelectFacturacion();
+                actualizarTablaFacturacion();
+            } else {
+                alert('Selecciona un producto válido y una cantidad mayor a 0.');
+            }
+        });
+
+        function actualizarTablaFacturacion() {
+            const tbody = document.querySelector('#facturacion tbody');
+            tbody.innerHTML = '';
+            let totalCobrar = 0;
+
+            facturaActual.forEach(item => {
+                totalCobrar += item.subtotal;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.nombre}</td>
+                        <td>${item.cantidad}</td>
+                        <td>$${item.precio.toFixed(2)}</td>
+                        <td>$${item.subtotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('total-cobrar').innerText = `Total a Cobrar: $${totalCobrar.toFixed(2)}`;
+        }
+
+        // Procesar el cobro final
+        document.getElementById('btn-procesar-cobro').addEventListener('click', function() {
+            const cliente = document.getElementById('nombre-cliente').value;
+            
+            if(facturaActual.length === 0) {
+                alert('La factura está vacía. Añade productos antes de cobrar.');
+                return;
+            }
+            if(cliente === "") {
+                alert('Por favor, ingresa el nombre del cliente.');
+                return;
+            }
+
+            const total = document.getElementById('total-cobrar').innerText;
+            alert(`✅ ¡Cobro procesado con éxito a ${cliente}!\n\n${total}`);
+            
+            // Limpiar la factura para el siguiente cliente
+            facturaActual = [];
+            actualizarTablaFacturacion();
+            document.getElementById('form-facturacion').reset();
+            actualizarSelectFacturacion(); // Refrescar los selectores
+        });
+
+        // --- 3. LÓGICA DE NÓMINA ---
+        document.getElementById('btn-add-nomina').addEventListener('click', function() {
+            const inputs = document.querySelectorAll('#form-nomina input');
+            const empleado = inputs[0].value;
+            const cargo = inputs[1].value;
+            const salario = parseFloat(inputs[2].value);
+            
+            // Si el campo de bono/deducción está vacío, lo tomamos como 0
+            const bonos = parseFloat(inputs[3].value) || 0;
+            const deducciones = parseFloat(inputs[4].value) || 0;
+
+            if(empleado && cargo && !isNaN(salario)) {
+                // Cálculo matemático de la nómina
+                const netoPagar = salario + bonos - deducciones;
+                
+                nominas.push({ empleado, cargo, salario, netoPagar });
+                actualizarTablaNomina();
+                document.getElementById('form-nomina').reset(); // Limpiar formulario
+            } else {
+                alert('Por favor, llena al menos el Empleado, Cargo y Salario Base.');
+            }
+        });
+
+        function actualizarTablaNomina() {
+            const tbody = document.querySelector('#nomina tbody');
+            tbody.innerHTML = ''; 
+            nominas.forEach(registro => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${registro.empleado}</td>
+                        <td>${registro.cargo}</td>
+                        <td>$${registro.salario.toFixed(2)}</td>
+                        <td><strong>$${registro.netoPagar.toFixed(2)}</strong></td>
+                    </tr>
+                `;
+            });
+        }
     </script>
 </body>
 </html>
-
